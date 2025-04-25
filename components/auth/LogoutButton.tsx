@@ -4,28 +4,39 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useRouter } from 'next/navigation';
+import { Button } from '../ui/button';
+import { toast } from 'sonner';
 
-export default function LogoutButton() {
+interface LogoutButtonProps {
+  onLogout?: () => void;
+}
+
+export default function LogoutButton({ onLogout }: LogoutButtonProps) {
   const clearUser = useAuthStore((state) => state.clearUser);
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      clearUser(); // 상태에서 유저 제거
-      alert('로그아웃 되었습니다');
+      clearUser();
+
+      if (onLogout) {
+        onLogout();
+      }
+      toast('You’ve successfully logged out.');
       router.push('/');
     } catch (error: any) {
-      alert('로그아웃 실패: ' + error.message);
+      alert('Failed to log out: ' + error.message);
     }
   };
 
   return (
-    <button
+    <Button
       onClick={handleLogout}
-      className="bg-gray-500 text-white px-4 py-2 rounded"
+      variant="outline"
+      className="hover:cursor-pointer"
     >
-      로그아웃
-    </button>
+      Log out
+    </Button>
   );
 }

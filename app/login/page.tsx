@@ -4,8 +4,11 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { signInWithGoogle } from '@/lib/auth/googleLogin'; // 공통 Google 로그인 함수 import
+import { signInWithGoogle } from '@/lib/auth/googleLogin';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,22 +16,48 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      toast('Please enter both email and password.');
+      return;
+    }
+
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert('로그인 성공!');
+      toast('You’ve successfully logged in.');
       router.push('/');
     } catch (error: any) {
-      alert(error.message);
+      switch (error.code) {
+        case 'auth/user-not-found':
+          toast.error('No account found with this email.');
+          break;
+        case 'auth/wrong-password':
+          toast.error('Incorrect password.');
+          break;
+        case 'auth/invalid-email':
+          toast.error('Please enter a valid email address.');
+          break;
+        case 'auth/too-many-requests':
+          toast.error('Too many login attempts. Please try again later.');
+          break;
+        default:
+          toast.error('Failed to log in. Please try again.');
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleLogin();
     }
   };
 
   const handleGoogleLogin = async () => {
-    const setUser = useAuthStore.getState().setUser; // 👈 상태 접근
+    const setUser = useAuthStore.getState().setUser;
 
     try {
       const resultUser = await signInWithGoogle();
 
-      // ✅ Zustand에 저장
+      //Save in Zustand
       setUser({
         uid: resultUser.uid,
         email: resultUser.email,
@@ -38,42 +67,49 @@ export default function LoginPage() {
 
       router.push('/');
     } catch (error: any) {
-      alert('Google 로그인 실패: ' + error.message);
+      toast.error('Google login failed: ' + error.message);
     }
   };
 
   return (
-    <main className="p-8 max-w-md mx-auto">
-      <h1 className="text-2xl mb-4 font-bold">로그인</h1>
+    <main className="p-8 pt-10 max-w-md mx-auto md:mt-15 md:max-w-lg">
+      <h1 className="text-2xl mb-4 font-bold md:text-4xl">Welcome back🌿</h1>
+      <div className="md:mt-5">
+        <input
+          type="email"
+          placeholder="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full border p-2 mb-4 md:p-3"
+        />
+        <input
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full border p-2 mb-3 md:p-3"
+        />
+        <Button
+          onClick={handleLogin}
+          className="w-full bg-[#b5d182] text-md py-6 hover:cursor-pointer hover:bg-[#a0bd6f] md:py-7"
+        >
+          Log in
+        </Button>
+      </div>
 
-      <input
-        type="email"
-        placeholder="이메일"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full border p-2 mb-4"
-      />
-      <input
-        type="password"
-        placeholder="비밀번호"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full border p-2 mb-4"
-      />
-
-      <button
-        onClick={handleLogin}
-        className="w-full bg-green-500 text-white p-2 rounded mb-2"
-      >
-        이메일로 로그인
-      </button>
-
-      <button
-        onClick={handleGoogleLogin}
-        className="w-full bg-red-500 text-white p-2 rounded"
-      >
-        Google로 로그인
-      </button>
+      <div className="flex flex-col items-center gap-2 mt-7 md:mt-8">
+        <div className="italic">Prefer a different way to log in?</div>
+        <Button
+          variant="outline"
+          onClick={handleGoogleLogin}
+          className="w-full text-md py-6 hover:cursor-pointer md:py-7"
+        >
+          <FcGoogle className="w-5 h-5 md:scale-130" />
+          Continue with Google
+        </Button>
+      </div>
     </main>
   );
 }

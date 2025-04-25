@@ -10,7 +10,10 @@ import {
   isNicknameTaken,
   saveUserToFirestore,
   registerNickname,
-} from '@/lib/firestore'; // ✅ 추가
+} from '@/lib/firestore';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -21,10 +24,10 @@ export default function SignupPage() {
 
   const handleSignup = async () => {
     try {
-      // ✅ 닉네임 중복 체크
+      //Checking nickname availability
       const nicknameExists = await isNicknameTaken(nickname);
       if (nicknameExists) {
-        alert('이미 사용 중인 닉네임입니다.');
+        toast.error('This nickname is already taken.');
         return;
       }
 
@@ -39,7 +42,7 @@ export default function SignupPage() {
         displayName: nickname,
       });
 
-      // ✅ Firestore에 사용자 정보 저장
+      //Save user info in Firestore
       await saveUserToFirestore(user.uid, email, nickname);
       await registerNickname(nickname, user.uid);
 
@@ -50,10 +53,30 @@ export default function SignupPage() {
         photoURL: null,
       });
 
-      alert('회원가입 성공!');
+      toast('	You’ve successfully signed up.');
       router.push('/');
     } catch (error: any) {
-      alert(error.message);
+      if (error.code === 'auth/email-already-in-use') {
+        toast.error(
+          <>
+            This email is already registered.
+            <br />
+            Please log in instead.
+          </>
+        );
+      } else {
+        toast.error('Failed to sign up: ' + error.message);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (nickname && email && password) {
+        handleSignup();
+      } else {
+        toast.error('Please fill in all fields before signing up.');
+      }
     }
   };
 
@@ -67,52 +90,69 @@ export default function SignupPage() {
         displayName: user.displayName,
         photoURL: user.photoURL,
       });
-
-      alert(`Google 회원가입 성공! (${user.email})`);
+      toast(`You’ve successfully signed up with Google. (${user.email})`);
       router.push('/');
     } catch (error: any) {
-      alert('Google 회원가입 실패: ' + error.message);
+      toast('Failed to sign up with Google: ' + error.message);
     }
   };
 
   return (
-    <main className="p-8 max-w-md mx-auto">
-      <h1 className="text-2xl mb-4 font-bold">회원가입</h1>
+    <main className="p-8 pt-10 max-w-md mx-auto md:mt-15 md:max-w-lg">
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold mb-1 md:text-3xl">
+          Welcome to
+          <span className="italic md:text-4xl">Tiny Logue</span> ✨
+        </h1>
+        <p className="text-sm text-gray-600 md:text-lg md:mt-2">
+          Start your English writing journey today!
+        </p>
+      </div>
 
-      <input
-        type="text"
-        placeholder="닉네임"
-        value={nickname}
-        onChange={(e) => setNickname(e.target.value)}
-        className="w-full border p-2 mb-4"
-      />
-      <input
-        type="email"
-        placeholder="이메일"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full border p-2 mb-4"
-      />
-      <input
-        type="password"
-        placeholder="비밀번호"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full border p-2 mb-4"
-      />
-      <button
-        onClick={handleSignup}
-        className="w-full bg-blue-500 text-white p-2 rounded mb-2"
-      >
-        이메일로 가입하기
-      </button>
+      <div className="md:mt-5">
+        <input
+          type="text"
+          placeholder="nickname"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full border p-2 mb-4 md:p-3"
+        />
+        <input
+          type="email"
+          placeholder="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full border p-2 mb-4 md:p-3"
+        />
+        <input
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full border p-2 mb-4 md:p-3"
+        />
+        <Button
+          onClick={handleSignup}
+          className="w-full bg-[#b5d182] text-md py-6 hover:cursor-pointer hover:bg-[#a0bd6f] md:py-7"
+        >
+          Sign up
+        </Button>
+      </div>
 
-      <button
-        onClick={handleGoogleSignup}
-        className="w-full bg-red-500 text-white p-2 rounded"
-      >
-        Google로 가입하기
-      </button>
+      <div className="flex flex-col items-center gap-2 mt-7 md:mt-8">
+        <div className="italic">Prefer a different way to sign up?</div>
+        <Button
+          variant="outline"
+          onClick={handleGoogleSignup}
+          className="w-full text-md py-6 hover:cursor-pointer md:py-7"
+        >
+          <FcGoogle className="w-5 h-5 md:scale-150" />
+          Continue with Google
+        </Button>
+      </div>
     </main>
   );
 }

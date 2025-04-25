@@ -1,14 +1,18 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import LogoutButton from '@/components/auth/LogoutButton';
+import { HiMenu } from 'react-icons/hi';
+import { useState } from 'react';
 
 const Navbar = () => {
   const user = useAuthStore((state) => state.user);
+  const [isNavbarOpen, setIsNavbarOpen] = useState<boolean>(false);
 
-  // 메뉴 구성
+  //Navbar items
   const baseItems = [
     { href: '/about', label: 'About' },
     { href: '/new-entry', label: 'New Entry' },
@@ -22,41 +26,137 @@ const Navbar = () => {
   const navbarItems = user ? [...baseItems, ...loggedInItems] : baseItems;
 
   return (
-    <nav className="p-4 flex justify-between items-center bg-white shadow-md">
-      {/* 왼쪽: 메뉴 */}
-      <div className="flex gap-4">
-        {navbarItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="text-blue-600 hover:underline"
-          >
-            {item.label}
-          </Link>
-        ))}
-      </div>
+    <>
+      <nav
+        className="w-full px-3 flex justify-between items-center shadow-md bg-[#FFFDF9]
+      md:px-20"
+      >
+        <div className="flex justify-start items-center gap-30">
+          {/* Navbar left - logo */}
+          <div className="flex-shrink-0 w-auto md:scale-125">
+            <Link href="/">
+              <Image
+                src="/images/tiny-logue-logo.png"
+                alt="Tiny Logue Logo"
+                width={150}
+                height={50}
+              />
+            </Link>
+          </div>
+          {/* Navbar menu- big screen */}
+          <div className="hidden md:flex text-xl gap-10">
+            {navbarItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="hover:underline"
+                onClick={() => setIsNavbarOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
 
-      {/* 오른쪽: 로그인/로그아웃/유저 정보 */}
-      <div className="flex items-center gap-4">
-        {user ? (
-          <>
-            <span className="text-gray-700 font-medium">
-              안녕하세요, {user.displayName || 'TinyLoguer'}님 👋
-            </span>
-            <LogoutButton />
-          </>
-        ) : (
-          <>
-            <Link href="/login">
-              <Button variant="outline">로그인</Button>
+        {/* Navbar right- md, lg screen */}
+        <div className="hidden md:flex items-center gap-5">
+          {user ? (
+            <>
+              <span className="text-xl italic text-gray-600">
+                Hi, {user.displayName || 'TinyLoguer'} 👋
+              </span>
+              <LogoutButton />
+            </>
+          ) : (
+            <div className="flex scale-105">
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="text-lg mr-3 hover:cursor-pointer"
+                >
+                  Log in
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="text-lg bg-[#EFD6C0] text-[#5A4033] hover:cursor-pointer hover:bg-[#e6c8b0]">
+                  Sign up
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Navbar right - small screen */}
+        <div className="md:hidden">
+          {user ? (
+            <Button
+              className="scale-120"
+              variant="ghost"
+              onClick={() => {
+                setIsNavbarOpen(!isNavbarOpen);
+              }}
+            >
+              <span>Hi, {user.displayName || 'TinyLoguer'} 👋</span>
+            </Button>
+          ) : (
+            <Button
+              className="scale-200 hover:cursor-pointer hover-bg-transparent"
+              variant="ghost"
+              onClick={() => setIsNavbarOpen(!isNavbarOpen)}
+            >
+              <HiMenu />
+            </Button>
+          )}
+        </div>
+      </nav>
+
+      {/* Mobile menu only visible when HiMenu was clicked */}
+      <div
+        className={`absolute top-20 left-0 z-50 md:hidden overflow-hidden transition-all duration-500 ease-in-out bg-[#FFFDF9] text-xl w-full shadow-md py-5
+    ${isNavbarOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}
+  `}
+      >
+        <div className="flex flex-col items-center gap-5">
+          {navbarItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="hover:underline"
+              onClick={() => setIsNavbarOpen(false)}
+            >
+              {item.label}
             </Link>
-            <Link href="/signup">
-              <Button>회원가입</Button>
-            </Link>
-          </>
-        )}
+          ))}
+        </div>
+
+        <div className="mt-8 text-center italic font-medium">
+          {user ? (
+            <LogoutButton onLogout={() => setIsNavbarOpen(false)} />
+          ) : (
+            <>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="mr-5 hover:cursor-pointer"
+                  onClick={() => setIsNavbarOpen(false)}
+                >
+                  Log in
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button
+                  className="bg-[#EFD6C0] text-[#5A4033] hover:cursor-pointer 
+                hover:bg-[#e6c8b0]"
+                  onClick={() => setIsNavbarOpen(false)}
+                >
+                  Sign up
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
       </div>
-    </nav>
+    </>
   );
 };
 
