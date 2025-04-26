@@ -23,10 +23,10 @@ export default function LogoutButton({ onLogout }: LogoutButtonProps) {
       if (onLogout) {
         onLogout();
       }
-      toast('You’ve successfully logged out.');
+      toast.success('You’ve successfully logged out.');
       router.push('/');
     } catch (error: any) {
-      alert('Failed to log out: ' + error.message);
+      toast.error('Failed to log out: ' + error.message);
     }
   };
 

@@ -5,9 +5,11 @@ import AITutorPanel from '@/components/AITutorPanel';
 import { useState } from 'react';
 import DatePicker from '@/components/DatePicker';
 import DiaryTextarea from '@/components/DiaryTextarea';
-
 import { saveEntryToFirestore } from '@/lib/firestore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function NewEntryPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -28,16 +30,16 @@ export default function NewEntryPage() {
       });
 
       const data = await res.json();
-      setContent(data.result); // bold 포함된 텍스트
+      setContent(data.result); //bold text
     } catch (error) {
-      alert('스펠링 교정 중 오류가 발생했어요.');
+      toast.error('An error occurred during spell check.');
       console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const user = useAuthStore().user;
+  const user = useAuthStore((state) => state.user);
 
   const getPlainText = (html: string): string => {
     const div = document.createElement('div');
@@ -47,7 +49,7 @@ export default function NewEntryPage() {
 
   const handleSave = async () => {
     if (!user || !selectedDate || !content.trim()) {
-      alert('내용을 입력해주세요.');
+      toast.error('Please enter some content.');
       return;
     }
 
@@ -59,68 +61,69 @@ export default function NewEntryPage() {
         date: selectedDate,
         content: plainText,
       });
-
-      alert('일기가 저장되었습니다!');
+      toast.success('Saved your note!');
       setContent('');
       setSelectedDate(new Date());
     } catch (error) {
-      alert('저장 중 오류가 발생했습니다.');
+      toast.error('An error occurred while saving.');
     }
   };
 
   return (
     <main className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-2">New Entry</h1>
+      <h1 className="text-2xl font-bold">New Entry</h1>
 
-      {/* 🔒 안내 문구 */}
-      {!user && (
-        <p className="mb-4 text-sm text-gray-600">
-          저장을 원하시면 먼저 로그인해 주세요.
+      {user ? (
+        <p className="text-gray-600 text-md mb-3 italic">
+          Write a note for today :)
+        </p>
+      ) : (
+        <p className="text-gray-600 text-md mb-3 italic">
+          Please log in first if you wish to save.
         </p>
       )}
 
-      {/* 📅 날짜 선택 */}
+      {/*Calendar*/}
       <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
 
-      {/* 📝 다이어리 입력 */}
+      {/*Note area*/}
       <DiaryTextarea content={content} setContent={setContent} />
 
-      {/* 🇬🇧🇺🇸 스펠링 체크 버튼 */}
-      <div className="flex gap-3 mt-4">
-        <button
-          onClick={() => handleSpellCheck('uk')}
-          disabled={loading}
-          className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-        >
-          🇬🇧 영국식 스펠링 체크
-        </button>
-        <button
-          onClick={() => handleSpellCheck('us')}
-          disabled={loading}
-          className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200"
-        >
-          🇺🇸 미국식 스펠링 체크
-        </button>
-      </div>
-
-      {/* 💾 저장 or 🔐 로그인 안내 */}
-      {user ? (
-        <button
-          onClick={handleSave}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          💾 저장
-        </button>
-      ) : (
-        <div className="mt-4">
-          <a
-            href="/signup"
-            className="inline-block px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+      {/* Spell check dropdown */}
+      <div className="flex justify-between items-center">
+        <div>
+          <select
+            onChange={(e) => handleSpellCheck(e.target.value as 'uk' | 'us')}
+            disabled={loading}
+            className="appearance-none py-1.5 px-1 border-2 shadow-sm rounded-md text-center
+            focus:outline-none focus:border-[#b5d182] 
+            cursor-pointer"
+            defaultValue=""
           >
-            로그인 / 회원가입 하러 가기 →
-          </a>
+            <option value="" disabled hidden>
+              Spelling check
+            </option>
+            <option value="uk">UK spelling check</option>
+            <option value="us">US spelling check</option>
+          </select>
         </div>
-      )}
+
+        {/*Save or Log in */}
+        {user ? (
+          <Button
+            onClick={handleSave}
+            className="bg-[#b5d182] text-md hover:cursor-pointer hover:bg-[#a0bd6f]"
+          >
+            Save
+          </Button>
+        ) : (
+          <Link href="/login">
+            <Button className="bg-[#b5d182] text-md hover:cursor-pointer hover:bg-[#a0bd6f] md:py-7">
+              Log in
+            </Button>
+          </Link>
+        )}
+      </div>
 
       <div>
         {/* AI 튜터 버튼 */}

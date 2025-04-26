@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { FaRobot } from 'react-icons/fa';
+import { RiRobot2Line } from 'react-icons/ri';
 
 export default function AITutorButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-6 right-6 z-50 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition"
+      className="fixed bottom-6 right-6 z-50 bg-[#EFD6C0] text-[#5A4033] p-4 rounded-full shadow-lg
+       hover:bg-[#e6c8b0] transition"
       aria-label="Open AI Tutor"
     >
-      <FaRobot className="text-xl" />
+      <RiRobot2Line className="text-xl" />
     </button>
   );
 }

@@ -36,7 +36,12 @@ export default function RootLayout({
         <AuthObserver />
         <Navbar />
         {children}
-        <Toaster position="top-center" richColors duration={3000} />
+        <Toaster
+          position="top-center"
+          richColors
+          duration={3000}
+          closeButton={false}
+        />
       </body>
     </html>
   );

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import LogoutButton from '@/components/auth/LogoutButton';
 import { HiMenu } from 'react-icons/hi';
-import { useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 const Navbar = () => {
   const user = useAuthStore((state) => state.user);
@@ -24,6 +24,23 @@ const Navbar = () => {
   ];
 
   const navbarItems = user ? [...baseItems, ...loggedInItems] : baseItems;
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsNavbarOpen(false);
+      }
+    };
+
+    if (isNavbarOpen) {
+      window.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNavbarOpen]);
 
   return (
     <>
@@ -112,6 +129,7 @@ const Navbar = () => {
 
       {/* Mobile menu only visible when HiMenu was clicked */}
       <div
+        ref={menuRef}
         className={`absolute top-20 left-0 z-50 md:hidden overflow-hidden transition-all duration-500 ease-in-out bg-[#FFFDF9] text-xl w-full shadow-md py-5
     ${isNavbarOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}
   `}

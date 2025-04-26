@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FcGoogle } from 'react-icons/fc';
+import Link from 'next/link';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -53,7 +54,7 @@ export default function SignupPage() {
         photoURL: null,
       });
 
-      toast('	You’ve successfully signed up.');
+      toast.success('	You’ve successfully signed up.');
       router.push('/');
     } catch (error: any) {
       if (error.code === 'auth/email-already-in-use') {
@@ -90,10 +91,12 @@ export default function SignupPage() {
         displayName: user.displayName,
         photoURL: user.photoURL,
       });
-      toast(`You’ve successfully signed up with Google. (${user.email})`);
+      toast.success(
+        `You’ve successfully signed up with Google. (${user.email})`
+      );
       router.push('/');
     } catch (error: any) {
-      toast('Failed to sign up with Google: ' + error.message);
+      toast.error('Failed to sign up with Google: ' + error.message);
     }
   };
 
@@ -152,6 +155,12 @@ export default function SignupPage() {
           <FcGoogle className="w-5 h-5 md:scale-150" />
           Continue with Google
         </Button>
+      </div>
+      <div className="mt-3 text-center md:hidden">
+        <span>Or </span>
+        <Link href="/login" className="italic underline text-lg">
+          Log in
+        </Link>
       </div>
     </main>
   );

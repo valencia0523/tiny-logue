@@ -11,7 +11,6 @@ export default function DiaryTextarea({
 }) {
   const divRef = useRef<HTMLDivElement>(null);
 
-  // 수정된 content를 반영 (예: OpenAI에서 받은 bold 포함된 문자열)
   useEffect(() => {
     if (divRef.current && divRef.current.innerHTML !== content) {
       divRef.current.innerHTML = content;
@@ -20,7 +19,9 @@ export default function DiaryTextarea({
 
   return (
     <div className="mb-6">
-      <label className="block text-sm mb-2 text-gray-600">📝 오늘의 기록</label>
+      <label className="block text-sm mb-2 text-gray-600">
+        📝 Today's entry
+      </label>
       <div
         ref={divRef}
         contentEditable

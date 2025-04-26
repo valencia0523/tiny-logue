@@ -9,6 +9,7 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FcGoogle } from 'react-icons/fc';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,13 +18,13 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      toast('Please enter both email and password.');
+      toast.error('Please enter both email and password.');
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast('You’ve successfully logged in.');
+      toast.success('You’ve successfully logged in.');
       router.push('/');
     } catch (error: any) {
       switch (error.code) {
@@ -109,6 +110,12 @@ export default function LoginPage() {
           <FcGoogle className="w-5 h-5 md:scale-130" />
           Continue with Google
         </Button>
+      </div>
+      <div className="mt-3 text-center md:hidden">
+        <span>Or </span>
+        <Link href="/signup" className="italic underline text-lg">
+          Sign up
+        </Link>
       </div>
     </main>
   );
