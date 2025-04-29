@@ -67,6 +67,7 @@ export default function NewEntryPage() {
       setSelectedDate(new Date());
     } catch (error) {
       toast.error('An error occurred while saving.');
+      console.log(error);
     }
   };
 

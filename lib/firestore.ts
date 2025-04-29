@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 
 /**
- * ✅ 사용자 정보 저장 (개인 데이터)
+ * ✅ Save user information (personal data)
  * /users/{uid}
  */
 export const saveUserToFirestore = async (
@@ -28,14 +28,14 @@ export const saveUserToFirestore = async (
       nickname,
     });
   } catch (error) {
-    console.error('❌ Firestore 저장 실패:', error);
+    console.error('❌ Failed to save user to Firestore:', error);
     throw error;
   }
 };
 
 /**
- * ✅ 닉네임 중복 확인
- * /nicknames/{nickname} 문서 존재 여부 확인
+ * ✅ Check for duplicate nickname
+ * Verify existence of document /nicknames/{nickname}
  */
 export const isNicknameTaken = async (nickname: string): Promise<boolean> => {
   const docRef = doc(db, 'nicknames', nickname);
@@ -44,8 +44,8 @@ export const isNicknameTaken = async (nickname: string): Promise<boolean> => {
 };
 
 /**
- * ✅ 닉네임 등록
- * /nicknames/{nickname} 문서 생성 (uid로 소유자 추적 가능)
+ * ✅ Register a nickname
+ * Create a document at /nicknames/{nickname} (track owner by uid)
  */
 export const registerNickname = async (nickname: string, uid: string) => {
   try {
@@ -54,14 +54,14 @@ export const registerNickname = async (nickname: string, uid: string) => {
       createdAt: serverTimestamp(),
     });
   } catch (error) {
-    console.error('❌ 닉네임 등록 실패:', error);
+    console.error('❌ Failed to register nickname:', error);
     throw error;
   }
 };
 
 /**
- * ✅ 일기 저장
- * /entries 컬렉션에 새로운 일기 문서 추가
+ * ✅ Save diary entry
+ * Add a new document to the /entries collection
  */
 export const saveEntryToFirestore = async ({
   uid,
@@ -80,15 +80,14 @@ export const saveEntryToFirestore = async ({
       createdAt: serverTimestamp(),
     });
   } catch (error) {
-    console.error('❌ 일기 저장 실패:', error);
+    console.error('❌ Failed to save diary entry:', error);
     throw error;
   }
 };
 
 /**
- * ✅ 날짜별 일기 조회
+ * ✅ Diary entry type
  */
-
 type DiaryEntry = {
   id: string;
   uid: string;
@@ -97,7 +96,13 @@ type DiaryEntry = {
   createdAt?: Timestamp;
 };
 
-export const fetchUserEntriesByDate = async (uid: string, date: Date) => {
+/**
+ * ✅ Fetch diary entries by date
+ */
+export const fetchUserEntriesByDate = async (
+  uid: string,
+  date: Date
+): Promise<DiaryEntry[]> => {
   const start = new Date(date);
   start.setHours(0, 0, 0, 0);
   const end = new Date(date);
@@ -113,21 +118,26 @@ export const fetchUserEntriesByDate = async (uid: string, date: Date) => {
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...(doc.data() as any),
-  }));
-};
-
-export const fetchAllUserEntries = async (uid: string) => {
-  const q = query(collection(db, 'entries'), where('uid', '==', uid));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as any),
+    ...(doc.data() as Omit<DiaryEntry, 'id'>),
   }));
 };
 
 /**
- * ✅ 키워드 검색 기반 일기 조회
+ * ✅ Fetch all diary entries for a user
+ */
+export const fetchAllUserEntries = async (
+  uid: string
+): Promise<DiaryEntry[]> => {
+  const q = query(collection(db, 'entries'), where('uid', '==', uid));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<DiaryEntry, 'id'>),
+  }));
+};
+
+/**
+ * ✅ Search diary entries by keyword
  */
 export const fetchUserEntriesByKeyword = async (
   uid: string,

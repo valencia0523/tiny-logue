@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
+import { FirebaseError } from 'firebase/app';
 
 interface LogoutButtonProps {
   onLogout?: () => void;
@@ -24,9 +25,12 @@ export default function LogoutButton({ onLogout }: LogoutButtonProps) {
         onLogout();
       }
       toast.success('You’ve successfully logged out.');
-      router.push('/');
-    } catch (error: any) {
-      toast.error('Failed to log out: ' + error.message);
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast.error('Failed to log out: ' + error.message);
+      } else {
+        toast.error('Failed to log out due to an unknown error.');
+      }
     }
   };
 

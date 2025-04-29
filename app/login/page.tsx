@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
+import { FirebaseError } from 'firebase/app';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,22 +27,26 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success('You’ve successfully logged in.');
       router.push('/');
-    } catch (error: any) {
-      switch (error.code) {
-        case 'auth/user-not-found':
-          toast.error('No account found with this email.');
-          break;
-        case 'auth/wrong-password':
-          toast.error('Incorrect password.');
-          break;
-        case 'auth/invalid-email':
-          toast.error('Please enter a valid email address.');
-          break;
-        case 'auth/too-many-requests':
-          toast.error('Too many login attempts. Please try again later.');
-          break;
-        default:
-          toast.error('Failed to log in. Please try again.');
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+            toast.error('No account found with this email.');
+            break;
+          case 'auth/wrong-password':
+            toast.error('Incorrect password.');
+            break;
+          case 'auth/invalid-email':
+            toast.error('Please enter a valid email address.');
+            break;
+          case 'auth/too-many-requests':
+            toast.error('Too many login attempts. Please try again later.');
+            break;
+          default:
+            toast.error('Failed to log in. Please try again.');
+        }
+      } else {
+        toast.error('An unknown error occurred.');
       }
     }
   };
@@ -67,8 +72,12 @@ export default function LoginPage() {
       });
 
       router.push('/');
-    } catch (error: any) {
-      toast.error('Google login failed: ' + error.message);
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast.error('Google login failed: ' + error.message);
+      } else {
+        toast.error('Google login failed due to an unknown error.');
+      }
     }
   };
 

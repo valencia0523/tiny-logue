@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 // Parse gpt
 const parseResult = (raw: string): { sentence: string; dialogue: string[] } => {
-  const [_, sentenceBlock, dialogueBlock] = raw.split(
+  const [, sentenceBlock, dialogueBlock] = raw.split(
     /Corrected Sentence:|Dialogue Example:/
   );
   const sentence = sentenceBlock?.trim() || '';
@@ -55,8 +55,9 @@ export default function AITutorPanel() {
 
       const data = await res.json();
       setResult(data.result);
-    } catch (err) {
+    } catch (error) {
       toast.error('An error occurred during conversion.');
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -70,6 +71,7 @@ export default function AITutorPanel() {
       setTimeout(() => setCopied(false), 3000);
     } catch (error) {
       toast.error('Failed to copy.');
+      console.log(error);
     }
   };
 

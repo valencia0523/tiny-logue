@@ -11,12 +11,20 @@ import { FaCalendarAlt, FaSearch } from 'react-icons/fa';
 import { Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 
+interface DiaryEntry {
+  id: string;
+  uid: string;
+  content: string;
+  date: Timestamp;
+  createdAt: Timestamp;
+}
+
 export default function MyLoguePage() {
   const user = useAuthStore().user;
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [entries, setEntries] = useState<any[]>([]);
-  const [filteredEntries, setFilteredEntries] = useState<any[]>([]);
+  const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<DiaryEntry[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
@@ -28,6 +36,7 @@ export default function MyLoguePage() {
   const loadEntries = async () => {
     if (!user) return;
     const allData = await fetchAllUserEntries(user.uid);
+    // console.log('Fetched entries:', allData);
     setEntries(allData);
   };
 

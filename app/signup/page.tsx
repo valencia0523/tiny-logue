@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
+import { FirebaseError } from 'firebase/app';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -56,17 +57,21 @@ export default function SignupPage() {
 
       toast.success('	You’ve successfully signed up.');
       router.push('/');
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        toast.error(
-          <>
-            This email is already registered.
-            <br />
-            Please log in instead.
-          </>
-        );
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        if (error.code === 'auth/email-already-in-use') {
+          toast.error(
+            <>
+              This email is already registered.
+              <br />
+              Please log in instead.
+            </>
+          );
+        } else {
+          toast.error('Failed to sign up: ' + error.message);
+        }
       } else {
-        toast.error('Failed to sign up: ' + error.message);
+        toast.error('An unknown error occurred.');
       }
     }
   };
@@ -95,8 +100,12 @@ export default function SignupPage() {
         `You’ve successfully signed up with Google. (${user.email})`
       );
       router.push('/');
-    } catch (error: any) {
-      toast.error('Failed to sign up with Google: ' + error.message);
+    } catch (error) {
+      if (error instanceof FirebaseError) {
+        toast.error('Failed to sign up with Google: ' + error.message);
+      } else {
+        toast.error('Google signup failed due to an unknown error.');
+      }
     }
   };
 
