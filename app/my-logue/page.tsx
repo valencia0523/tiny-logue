@@ -1,111 +1,159 @@
-// ✅ 파일: app/my-logue/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
-import {
-  fetchUserEntriesByDate,
-  fetchUserEntriesByKeyword,
-} from '@/lib/firestore';
+import { fetchAllUserEntries } from '@/lib/firestore';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import './calendar-custom.css'; // 커스텀 스타일 추가
+import '@/app/styles/calendar-custom.css';
 import DiaryCard from '@/components/DiaryCard';
 import { FaCalendarAlt, FaSearch } from 'react-icons/fa';
+import { Timestamp } from 'firebase/firestore';
+import { Button } from '@/components/ui/button';
 
 export default function MyLoguePage() {
   const user = useAuthStore().user;
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [searchKeyword, setSearchKeyword] = useState('');
   const [entries, setEntries] = useState<any[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<any[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showCalendar, setShowCalendar] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
+  const [selectedButton, setSelectedButton] = useState<'calendar' | 'search'>(
+    'calendar'
+  );
 
+  // Fetch all entries once
   const loadEntries = async () => {
     if (!user) return;
-    if (searchKeyword.trim()) {
-      const data = await fetchUserEntriesByKeyword(user.uid, searchKeyword);
-      setEntries(data);
-    } else {
-      const data = await fetchUserEntriesByDate(user.uid, selectedDate);
-      setEntries(data);
-    }
+    const allData = await fetchAllUserEntries(user.uid);
+    setEntries(allData);
   };
 
   useEffect(() => {
     loadEntries();
-  }, [selectedDate, searchKeyword, user]);
+  }, [user]);
+
+  // Filter entries based on the selected date
+  useEffect(() => {
+    if (!selectedDate || !entries.length) {
+      setFilteredEntries([]);
+      return;
+    }
+
+    const start = new Date(selectedDate);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(selectedDate);
+    end.setHours(23, 59, 59, 999);
+
+    const matched = entries.filter((entry) => {
+      const entryDate = (entry.date as Timestamp).toDate();
+      return entryDate >= start && entryDate <= end;
+    });
+
+    setFilteredEntries(matched);
+  }, [selectedDate, entries]);
 
   const handleToggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
   return (
-    <main className="max-w-6xl mx-auto p-4 md:p-8">
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* 왼쪽: 1/3 영역 */}
-        <div className="md:w-1/3 w-full space-y-4">
+    <main className="p-8 mt-25 max-w-md mx-auto md:mt-35 md:max-w-4xl">
+      <div className="flex flex-col gap-10 md:flex-row md:justify-between md:gap-15">
+        {/* Left side: calendar and search */}
+        <div className="w-full md:min-w-[280px] md:max-w-[300px] space-y-4">
           <div className="flex gap-2 md:flex-row md:items-center">
-            <button
+            <Button
               onClick={() => {
-                setShowCalendar(!showCalendar);
+                setShowCalendar(true);
                 setShowSearch(false);
-                setSearchKeyword(''); // ✅ 검색 입력 초기화
-                setSelectedDate(new Date()); // ✅ 날짜 초기화 (오늘)
+                setSearchKeyword('');
+                setSelectedDate(new Date()); // Reset to today
+                setSelectedButton('calendar');
               }}
-              className="p-2 bg-gray-100 rounded hover:bg-gray-200"
+              className={`p-2 rounded text-gray-100 hover:cursor-pointer hover:bg-[#a0bd6f] ${
+                selectedButton === 'calendar'
+                  ? 'bg-[#a0bd6f] text-black'
+                  : 'bg-[#b5d182]'
+              }`}
+              variant="outline"
             >
               <FaCalendarAlt />
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => {
-                setShowSearch(!showSearch);
+                setShowSearch(true);
                 setShowCalendar(false);
+                setSelectedButton('search');
               }}
-              className="p-2 bg-gray-100 rounded hover:bg-gray-200"
+              className={`p-2 rounded text-gray-100 hover:cursor-pointer hover:bg-[#a0bd6f] ${
+                selectedButton === 'search'
+                  ? 'bg-[#a0bd6f] text-black'
+                  : 'bg-[#b5d182]'
+              }`}
+              variant="outline"
             >
               <FaSearch />
-            </button>
+            </Button>
           </div>
 
+          {/* Calendar view */}
           {showCalendar && (
-            <div className="mt-2">
+            <div className="mt-2 relative w-full">
               <Calendar
+                className="min-w-[320px] max-w-full"
                 onChange={(date) => setSelectedDate(date as Date)}
                 value={selectedDate}
                 tileContent={({ date }) => {
+                  if (!entries.length) return null;
+
                   const today = new Date();
                   const isToday =
                     date.getFullYear() === today.getFullYear() &&
                     date.getMonth() === today.getMonth() &&
                     date.getDate() === today.getDate();
 
-                  const isSelected =
-                    selectedDate &&
-                    date.getFullYear() === selectedDate.getFullYear() &&
-                    date.getMonth() === selectedDate.getMonth() &&
-                    date.getDate() === selectedDate.getDate();
+                  const entryDates = entries.map((entry) => {
+                    const entryDate = (entry.date as Timestamp).toDate();
+                    return `${entryDate.getFullYear()}-${entryDate.getMonth()}-${entryDate.getDate()}`;
+                  });
 
-                  return isToday && !isSelected ? (
-                    <div className="absolute top-1 left-1 text-xs text-yellow-500">
-                      ⭐
-                    </div>
-                  ) : null;
+                  const thisDateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+                  const isWritten = entryDates.includes(thisDateKey);
+
+                  return (
+                    <>
+                      {/* Show a star if there is a diary entry */}
+                      {isWritten && (
+                        <div className="absolute top-1 left-1 text-xs text-yellow-500">
+                          ⭐
+                        </div>
+                      )}
+                      {/* Bold today's date */}
+                      {isToday && (
+                        <div className="absolute inset-0 flex items-center justify-center font-bold text-black">
+                          {date.getDate()}
+                        </div>
+                      )}
+                    </>
+                  );
                 }}
                 tileClassName={({ date }) => {
-                  const isSelected =
+                  const selected =
                     selectedDate &&
                     date.getFullYear() === selectedDate.getFullYear() &&
                     date.getMonth() === selectedDate.getMonth() &&
                     date.getDate() === selectedDate.getDate();
 
-                  return isSelected ? 'selected-tile' : '';
+                  return selected ? 'selected-tile' : '';
                 }}
               />
             </div>
           )}
 
+          {/* Search view */}
           {showSearch && (
             <input
               type="text"
@@ -117,23 +165,37 @@ export default function MyLoguePage() {
           )}
         </div>
 
-        {/* 오른쪽: 2/3 영역 */}
-        <div className="md:w-2/3 w-full space-y-4">
-          {entries.length === 0 ? (
-            <p className="text-gray-500">
-              {searchKeyword.trim()
-                ? 'No results for this keyword.'
-                : 'No entry for today.'}
-            </p>
+        {/* Right side: diary entries */}
+        <div className="w-full md:flex-1 md:mt-10">
+          {/* Search mode */}
+          {showSearch && searchKeyword.trim() ? (
+            <>
+              {entries
+                .filter((entry) => entry.content?.includes(searchKeyword))
+                .map((entry) => (
+                  <DiaryCard
+                    key={entry.id}
+                    entry={entry}
+                    isExpanded={expandedId === entry.id}
+                    onToggle={() => handleToggleExpand(entry.id)}
+                  />
+                ))}
+            </>
           ) : (
-            entries.map((entry) => (
-              <DiaryCard
-                key={entry.id}
-                entry={entry}
-                isExpanded={expandedId === entry.id}
-                onToggle={() => handleToggleExpand(entry.id)}
-              />
-            ))
+            <>
+              {filteredEntries.length === 0 ? (
+                <p className="text-gray-500">No notes for this day.</p>
+              ) : (
+                filteredEntries.map((entry) => (
+                  <DiaryCard
+                    key={entry.id}
+                    entry={entry}
+                    isExpanded={expandedId === entry.id}
+                    onToggle={() => handleToggleExpand(entry.id)}
+                  />
+                ))
+              )}
+            </>
           )}
         </div>
       </div>

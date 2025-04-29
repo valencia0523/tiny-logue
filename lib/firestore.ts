@@ -117,6 +117,15 @@ export const fetchUserEntriesByDate = async (uid: string, date: Date) => {
   }));
 };
 
+export const fetchAllUserEntries = async (uid: string) => {
+  const q = query(collection(db, 'entries'), where('uid', '==', uid));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as any),
+  }));
+};
+
 /**
  * ✅ 키워드 검색 기반 일기 조회
  */

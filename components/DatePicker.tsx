@@ -1,7 +1,8 @@
 'use client';
 
-import ReactDatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import '@/app/styles/calendar-custom.css';
 
 export default function DatePicker({
   selectedDate,
@@ -13,10 +14,9 @@ export default function DatePicker({
   return (
     <div className="mb-4">
       <label className="block text-sm mb-2">📅 Select a date</label>
-      <ReactDatePicker
-        selected={selectedDate}
-        onChange={onChange}
-        dateFormat="dd/MM/yyyy"
+      <Calendar
+        onChange={(date) => onChange(date as Date)}
+        value={selectedDate}
         className="border p-2 rounded w-full"
       />
     </div>

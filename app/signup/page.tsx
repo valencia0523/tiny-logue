@@ -101,7 +101,7 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="p-8 pt-10 max-w-md mx-auto md:mt-15 md:max-w-lg">
+    <main className="p-8 mt-25 max-w-md mx-auto md:mt-35 md:max-w-lg">
       <div className="mb-5">
         <h1 className="text-2xl font-bold mb-1 md:text-3xl">
           Welcome to

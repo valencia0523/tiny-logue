@@ -3,7 +3,9 @@
 import AITutorButton from '@/components/AITutorButton';
 import AITutorPanel from '@/components/AITutorPanel';
 import { useState } from 'react';
-import DatePicker from '@/components/DatePicker';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import '@/app/styles/calendar-custom.css';
 import DiaryTextarea from '@/components/DiaryTextarea';
 import { saveEntryToFirestore } from '@/lib/firestore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
@@ -13,11 +15,12 @@ import Link from 'next/link';
 
 export default function NewEntryPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [isTutorOpen, setIsTutorOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  const user = useAuthStore((state) => state.user);
 
   const handleSpellCheck = async (dialect: 'uk' | 'us') => {
     if (!content.trim()) return;
@@ -38,8 +41,6 @@ export default function NewEntryPage() {
       setLoading(false);
     }
   };
-
-  const user = useAuthStore((state) => state.user);
 
   const getPlainText = (html: string): string => {
     const div = document.createElement('div');
@@ -70,12 +71,12 @@ export default function NewEntryPage() {
   };
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold">New Entry</h1>
+    <main className="p-8 mt-25 max-w-md mx-auto md:mt-35 md:max-w-lg">
+      <h1 className="text-2xl mb-4 font-bold md:text-4xl">New Logue</h1>
 
       {user ? (
         <p className="text-gray-600 text-md mb-3 italic">
-          Write a note for today :)
+          Start your logue for today :)
         </p>
       ) : (
         <p className="text-gray-600 text-md mb-3 italic">
@@ -83,8 +84,29 @@ export default function NewEntryPage() {
         </p>
       )}
 
-      {/*Calendar*/}
-      <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} />
+      {/* Calendar Toggle */}
+      <div className="relative mb-4">
+        <label className="block text-sm mb-2">📅 Select a date</label>
+        <button
+          onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+          className="w-full border p-2 rounded text-left bg-white hover:bg-gray-100"
+        >
+          {selectedDate
+            ? selectedDate.toLocaleDateString('en-GB')
+            : 'Select a date'}
+        </button>
+
+        {isCalendarOpen && (
+          <Calendar
+            onChange={(date) => {
+              setSelectedDate(date as Date);
+              setIsCalendarOpen(false);
+            }}
+            value={selectedDate}
+            className="absolute bg-white top-full left-0  shadow-lg rounded z-20 w-[85vw] max-w-sm"
+          />
+        )}
+      </div>
 
       {/*Note area*/}
       <DiaryTextarea content={content} setContent={setContent} />
@@ -95,7 +117,7 @@ export default function NewEntryPage() {
           <select
             onChange={(e) => handleSpellCheck(e.target.value as 'uk' | 'us')}
             disabled={loading}
-            className="appearance-none py-1.5 px-1 border-2 shadow-sm rounded-md text-center
+            className="appearance-none py-1.5 px-1 border-2 shadow-sm rounded-md text-left
             focus:outline-none focus:border-[#b5d182] 
             cursor-pointer"
             defaultValue=""
@@ -103,8 +125,8 @@ export default function NewEntryPage() {
             <option value="" disabled hidden>
               Spelling check
             </option>
-            <option value="uk">UK spelling check</option>
-            <option value="us">US spelling check</option>
+            <option value="uk">🇬🇧 British</option>
+            <option value="us">🇺🇸 American</option>
           </select>
         </div>
 
@@ -118,7 +140,7 @@ export default function NewEntryPage() {
           </Button>
         ) : (
           <Link href="/login">
-            <Button className="bg-[#b5d182] text-md hover:cursor-pointer hover:bg-[#a0bd6f] md:py-7">
+            <Button className="bg-[#b5d182] text-md hover:cursor-pointer hover:bg-[#a0bd6f] md:py-5">
               Log in
             </Button>
           </Link>
@@ -126,10 +148,10 @@ export default function NewEntryPage() {
       </div>
 
       <div>
-        {/* AI 튜터 버튼 */}
+        {/* AI tutor button */}
         <AITutorButton onClick={() => setIsTutorOpen(!isTutorOpen)} />
 
-        {/* AI 튜터 패널 */}
+        {/* AI tutor panel */}
         {isTutorOpen && <AITutorPanel />}
       </div>
     </main>

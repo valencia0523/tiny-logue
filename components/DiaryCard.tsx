@@ -1,5 +1,5 @@
-// ✅ 파일: components/DiaryCard.tsx
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface DiaryCardProps {
   entry: {
@@ -18,7 +18,7 @@ export default function DiaryCard({
 }: DiaryCardProps) {
   const formattedDate = format(
     new Date(entry.date.seconds * 1000),
-    'yyyy-MM-dd'
+    'dd/MM/yyyy'
   );
   const preview =
     entry.content.length > 100
@@ -26,7 +26,7 @@ export default function DiaryCard({
       : entry.content;
 
   return (
-    <div className="border rounded p-4 shadow bg-white transition-all duration-300">
+    <div className="border rounded p-4 shadow bg-white transition-all duration-300 md:w-md">
       <div onClick={onToggle} className="cursor-pointer">
         <h3 className="font-bold mb-1">{formattedDate}</h3>
         {!isExpanded ? (
@@ -39,12 +39,12 @@ export default function DiaryCard({
             <button
               className="text-sm text-blue-500 hover:underline"
               onClick={(e) => {
-                e.stopPropagation(); // 카드 확장 방지
+                e.stopPropagation();
                 navigator.clipboard.writeText(entry.content);
-                alert('일기 내용이 복사되었습니다!');
+                toast('The note has been copied to your clipboard');
               }}
             >
-              📤 공유하기
+              📤 Share
             </button>
           </div>
         )}

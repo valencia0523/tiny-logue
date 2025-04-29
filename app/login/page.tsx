@@ -73,7 +73,7 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="p-8 pt-10 max-w-md mx-auto md:mt-15 md:max-w-lg">
+    <main className="p-8 mt-25 max-w-md mx-auto md:mt-35 md:max-w-lg">
       <h1 className="text-2xl mb-4 font-bold md:text-4xl">Welcome back🌿</h1>
       <div className="md:mt-5">
         <input

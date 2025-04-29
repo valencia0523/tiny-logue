@@ -14,8 +14,8 @@ const Navbar = () => {
 
   //Navbar items
   const baseItems = [
-    { href: '/about', label: 'About' },
-    { href: '/new-entry', label: 'New Entry' },
+    // { href: '/about', label: 'About' },
+    { href: '/new-entry', label: 'New Logue' },
   ];
 
   const loggedInItems = [
@@ -45,7 +45,7 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className="w-full px-3 flex justify-between items-center shadow-md bg-[#FFFDF9]
+        className="fixed top-0 left-0 w-full px-3 flex justify-between items-center shadow-md bg-[#FFFDF9]
       md:px-20"
       >
         <div className="flex justify-start items-center gap-30">

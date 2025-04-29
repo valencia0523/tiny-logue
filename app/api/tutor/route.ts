@@ -1,9 +1,8 @@
-// app/api/tutor/route.ts
 import { OpenAI } from 'openai';
 import { NextRequest, NextResponse } from 'next/server';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // 서버에서는 NEXT_PUBLIC ❌
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(req: NextRequest) {
@@ -19,16 +18,20 @@ Please:
 1. Correct and improve the sentence using ${
     variant === 'uk' ? 'British' : 'American'
   } English conventions.
-2. Ensure the corrected sentence reflects the intended meaning.
-3. Provide a short, natural dialogue (at least 4 lines) where the corrected sentence could appear.
+2. Ensure the corrected sentence accurately reflects the intended meaning.
+3. Provide a short, natural dialogue (at least 4 lines) where the corrected sentence could naturally appear.
+4. In the dialogue example, only use "A:" and "B:" as speakers (do not invent names like John, Amy, etc.).
 
-Respond in this format:
+Respond strictly in this format:
 
 Corrected Sentence:
 ...
 
 Dialogue Example:
-...
+A: ...
+B: ...
+A: ...
+B: ...
 `;
 
   try {
@@ -42,9 +45,9 @@ Dialogue Example:
 
     return NextResponse.json({ result });
   } catch (error) {
-    console.error('❌ AI Tutor 오류:', error);
+    console.error('AI Tutor error:', error);
     return NextResponse.json(
-      { error: 'Failed to process request' },
+      { error: 'An error has occurred while processing your request.' },
       { status: 500 }
     );
   }

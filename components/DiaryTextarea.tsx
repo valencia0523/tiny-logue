@@ -19,9 +19,7 @@ export default function DiaryTextarea({
 
   return (
     <div className="mb-6">
-      <label className="block text-sm mb-2 text-gray-600">
-        📝 Today's entry
-      </label>
+      <label className="block text-sm mb-2">📝 Today's logue</label>
       <div
         ref={divRef}
         contentEditable
