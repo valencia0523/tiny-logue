@@ -26,6 +26,7 @@ This service helps users practise English naturally by writing short logues ever
 - **TypeScript**
 - **Firebase (Authentication & Firestore)**
 - **OpenAI API (AI feedback)**
+- **Vercel (Deployment)**
 
 ## 📬 Contact
 
