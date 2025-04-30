@@ -3,7 +3,6 @@
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useAuthStore } from '@/lib/store/useAuthStore';
-import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
 import { FirebaseError } from 'firebase/app';
@@ -14,7 +13,6 @@ interface LogoutButtonProps {
 
 export default function LogoutButton({ onLogout }: LogoutButtonProps) {
   const clearUser = useAuthStore((state) => state.clearUser);
-  const router = useRouter();
 
   const handleLogout = async () => {
     try {

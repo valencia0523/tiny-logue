@@ -7,7 +7,7 @@ This service helps users practise English naturally by writing short logues ever
 
 <p align="center">
   <a href="https://tiny-logue.vercel.app/" target="_blank">
-    <img alt="Tiny Logue" src="https://img.shields.io/badge/Visit-Tiny%20Logue-4CAF50?style=for-the-badge">
+    <img alt="Tiny Logue" src="https://img.shields.io/badge/Visit-Tiny%20Logue-EFD6C0?style=for-the-badge">
   </a>
 </p>
 
