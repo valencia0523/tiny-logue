@@ -16,7 +16,7 @@ interface DiaryEntry {
   uid: string;
   content: string;
   date: Timestamp;
-  createdAt: Timestamp;
+  createdAt?: Timestamp;
 }
 
 export default function MyLoguePage() {
