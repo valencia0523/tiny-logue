@@ -22,7 +22,7 @@ const HeroSection = () => {
       <div className="mt-5 md:mt-0">
         <Image
           src="/images/home-hero-section.jpg"
-          alt="Hero illustration"
+          alt="Illustration of notebooks, a laptop and a pen"
           width={500}
           height={500}
           className="h-[280px] md:min-h-[500px]"

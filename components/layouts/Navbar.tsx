@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/lib/store/useAuthStore';
-import LogoutButton from '@/components/auth/LogoutButton';
-import { HiMenu } from 'react-icons/hi';
-import { useRef, useEffect, useState } from 'react';
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import LogoutButton from "@/components/auth/LogoutButton";
+import { HiMenu } from "react-icons/hi";
+import { useRef, useEffect, useState } from "react";
 
 const Navbar = () => {
   const user = useAuthStore((state) => state.user);
@@ -15,12 +15,12 @@ const Navbar = () => {
   //Navbar items
   const baseItems = [
     // { href: '/about', label: 'About' },
-    { href: '/new-entry', label: 'New Logue' },
+    { href: "/new-entry", label: "New Logue" },
   ];
 
   const loggedInItems = [
-    { href: '/my-logue', label: 'My Logue' },
-    { href: '/community', label: 'Community' },
+    { href: "/my-logue", label: "My Logue" },
+    { href: "/community", label: "Community" },
   ];
 
   const navbarItems = user ? [...baseItems, ...loggedInItems] : baseItems;
@@ -35,17 +35,17 @@ const Navbar = () => {
     };
 
     if (isNavbarOpen) {
-      window.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      window.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isNavbarOpen]);
 
   return (
     <>
       <nav
-        className="fixed top-0 left-0 w-full px-3 flex justify-between items-center shadow-md bg-[#FFFDF9]
+        className="fixed top-0 left-0 w-full z-50 px-3 flex justify-between items-center shadow-md bg-[#FFFDF9]
       md:px-20"
       >
         <div className="flex justify-start items-center gap-30">
@@ -80,7 +80,7 @@ const Navbar = () => {
           {user ? (
             <>
               <span className="text-xl italic text-gray-600">
-                Hi, {user.displayName || 'TinyLoguer'} 👋
+                Hi, {user.displayName || "TinyLoguer"} 👋
               </span>
               <LogoutButton />
             </>
@@ -113,7 +113,7 @@ const Navbar = () => {
                 setIsNavbarOpen(!isNavbarOpen);
               }}
             >
-              <span>Hi, {user.displayName || 'TinyLoguer'} 👋</span>
+              <span>Hi, {user.displayName || "TinyLoguer"} 👋</span>
             </Button>
           ) : (
             <Button
@@ -131,7 +131,7 @@ const Navbar = () => {
       <div
         ref={menuRef}
         className={`absolute top-20 left-0 z-50 md:hidden overflow-hidden transition-all duration-500 ease-in-out bg-[#FFFDF9] text-xl w-full shadow-md py-5
-    ${isNavbarOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}
+    ${isNavbarOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}
   `}
       >
         <div className="flex flex-col items-center gap-5">
