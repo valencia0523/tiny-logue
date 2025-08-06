@@ -1,26 +1,18 @@
-import Image from 'next/image';
-import mainBackground from '@/public/images/main-background-3.png';
-import mobileBackground from '@/public/images/main-background-mobile.png';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import Image from "next/image";
+import mainBackground from "@/public/images/main-background-3.png";
+import mobileBackground from "@/public/images/main-background-mobile.png";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import HeroSection from "@/components/home/HeroSection";
+import FeaturesSection from "@/components/home/FeaturesSection";
 
 export default function MainPage() {
   return (
-    <div className="bg-[#EFD6C0] overflow-hidden">
-      <Image
-        src={mobileBackground}
-        alt="Main background image"
-        style={{ objectFit: 'cover' }}
-        className="md:hidden h-screen"
-      />
-      <Image
-        src={mainBackground}
-        alt="Main background image"
-        style={{ objectFit: 'cover' }}
-        className="hidden md:block h-screen w-full"
-      />
+    <div>
+      <HeroSection />
+      <FeaturesSection />
 
-      <div className="animate-fade-in-up absolute top-65 ml-10 text-left md:ml-165 md:top-90">
+      {/* <div className="animate-fade-in-up absolute top-65 ml-10 text-left md:ml-165 md:top-90">
         <div className="flex flex-col gap-30">
           <div
             className="italic text-2xl text-[#5A4033] [text-shadow:_2px_2px_4px_rgba(0,0,0,0.3)]
@@ -40,7 +32,7 @@ export default function MainPage() {
             </Button>
           </Link>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
